@@ -6,6 +6,7 @@ contract LicitacionVickrey {
 
     uint siguienteId;
 
+    //address public address_propietario;
     address payable public propietario;
 
     struct Propuesta {
@@ -27,6 +28,7 @@ contract LicitacionVickrey {
         En el constructor se indica la dirección del propietario del contrato
         la cual será usada para ciertas validaciones
         */
+        //address_propietario = msg.sender;
         propietario = payable(msg.sender);
     }
 
@@ -38,7 +40,11 @@ contract LicitacionVickrey {
         la cual será asignada inmediatamente como mejorPropuesta y como segundaMejorPropuesta
         */
 
-        require(msg.sender == propietario, "Solo el propietario del contrato puede inciar la licitacion.");
+        if(msg.sender != propietario)
+        {
+            revert("Solo el propietario del contrato puede inciar la licitacion.");
+        }
+
         if(licitacionIniciada == true)
         {
             revert("La licitacion ya ha sido iniciada.");
@@ -66,8 +72,10 @@ contract LicitacionVickrey {
     //si la función es payable va a pedir indicar un monto y va a tomar la dirección el usuario que indica el monto
     function hacerPropuesta() public payable 
     {
-        require(msg.sender != propietario, "El propietario del contrato no puede hacer propuestas.");
-
+        if(msg.sender == propietario)
+        {
+            revert("El propietario del contrato no puede hacer propuestas.");
+        }
         if(licitacionIniciada == false)
         {
             revert("La licitacion aun no ha sido iniciada");
@@ -108,7 +116,10 @@ contract LicitacionVickrey {
 
     function terminarLicitacion() public
     {
-        require(msg.sender == propietario, "Solo el propietario del contrato puede terminar la licitacion.");
+        if(msg.sender != propietario)
+        {
+            revert("Solo el propietario del contrato puede terminar la licitacion.");
+        }
 
         licitacionTerminada = true;
     }
@@ -166,5 +177,14 @@ contract LicitacionVickrey {
         }
         return true;
     }
+
+    /*
+    // Función para obtener la dirección del propietario, 
+    //fue un intento para resolver problemas en los tests, finalmente no fue necesaria
+    function obtenerPropietario( ) public view returns (address) 
+    {    
+        return propietario;
+    }
+    */
 
 }
